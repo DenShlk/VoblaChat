@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "930114374244",
+    "firebase_url": "https://voblachat.firebaseio.com",
+    "project_id": "voblachat",
+    "storage_bucket": "voblachat.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:930114374244:android:48d4b61e8107f49a0cad71",
+        "android_client_info": {
+          "package_name": "com.hyperspere.voblachat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "930114374244-k5a3n54nulhklf4vta6d7rdpv7d85s7v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hyperspere.voblachat",
+            "certificate_hash": "124868d8996859cc95a817cc88f971aaf233424b"
+          }
+        },
+        {
+          "client_id": "930114374244-n1p0p08fu5e2r00hbg60ap40bj0d1m21.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJmgCuE5J-bQxZONca9c60qBjWy1ivdDE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "930114374244-n1p0p08fu5e2r00hbg60ap40bj0d1m21.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
