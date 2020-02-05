@@ -5,7 +5,7 @@
         android:left="0dp">
         <shape>
             <gradient android:startColor="@color/colorPrimary" android:endColor="@color/colorPrimaryDark"/>
-            <corners android:radius="50.0dip" />
+            <corners android:radius="30.0dip" />
         </shape>
     </item>
 
@@ -15,7 +15,7 @@
         android:bottom="3dp">
         <shape>
             <solid android:color="@color/colorBackground"/>
-            <corners android:radius="50.0dip" />
+            <corners android:radius="30.0dip" />
         </shape>
     </item>
 </layer-list>

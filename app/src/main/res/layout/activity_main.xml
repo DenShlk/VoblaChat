@@ -26,7 +26,6 @@
         android:id="@+id/toolbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="1dp"
         android:background="@color/colorPrimaryDark"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
@@ -68,21 +67,35 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <EditText
-            android:id="@+id/message_et"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="fill_vertical"
-            android:layout_marginLeft="5dp"
+            android:layout_marginLeft="3dp"
             android:layout_weight="1"
-            android:background="@drawable/edittext_background"
-            android:ems="10"
-            android:hint="Enter..."
-            android:inputType="textAutoCorrect|textMultiLine|text|textCapSentences|textAutoComplete"
-            android:maxHeight="180dp"
-            android:minHeight="60dp"
-            android:textAlignment="center"
-            android:textSize="24sp" />
+            android:background="@drawable/edit_text_background"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/message_et"
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="18dp"
+
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="18dp"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1"
+
+                android:background="@null"
+                android:ems="10"
+                android:hint="Enter..."
+                android:inputType="textAutoCorrect|textMultiLine|text|textCapSentences|textAutoComplete"
+                android:maxHeight="180dp"
+                android:minHeight="52dp"
+                android:textAlignment="gravity"
+                android:textSize="24sp" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/send_button"

@@ -13,7 +13,7 @@
     </style>
 
     <style name="RoundedCornerTextEdit" parent="@style/Widget.AppCompat.Button.Colored">
-        <item name="android:background">@drawable/edittext_background</item>
+        <item name="android:background">@drawable/edit_text_background</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

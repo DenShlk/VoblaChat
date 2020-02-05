@@ -1,18 +1,24 @@
 package com.hyperspere.voblachat;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -29,8 +35,11 @@ import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+	static private final String CHANNEL_ID = "Vobla chat new messages";
+
 	private static final String TAG = "DEBUG_MAIN_ACTIVITY";
 
+	private FirebaseAnalytics mFirebaseAnalytics;
 	private FirebaseAuth mAuth;
 	private DatabaseReference reference;
 	private FirebaseUser fuser;
@@ -45,11 +54,72 @@ public class MainActivity extends AppCompatActivity {
 	private MessageAdapter messageAdapter;
 	private List<Message> messages;
 
+	private ServiceConnection serviceConnection;
+	private boolean connected = false;
+
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		if(connected)
+			unbindService(serviceConnection);
+		connected = false;
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		if(connected)
+			unbindService(serviceConnection);
+		connected = false;
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		if(connected)
+			unbindService(serviceConnection);
+		connected = false;
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if(!connected)
+			bindService(new Intent(getApplicationContext(), NewMessageChecker.class), serviceConnection, BIND_IMPORTANT);
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		if(!connected)
+			bindService(new Intent(getApplicationContext(), NewMessageChecker.class), serviceConnection, BIND_IMPORTANT);
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		createNotificationChannel();
+
+		serviceConnection = new ServiceConnection() {
+
+			@Override
+			public void onServiceConnected(ComponentName name, IBinder service) {
+				connected = true;
+			}
+
+			@Override
+			public void onServiceDisconnected(ComponentName name) {
+				connected = false;
+			}
+		};
+
+		startService(new Intent(getApplicationContext(), NewMessageChecker.class));
+
+		if(!connected)
+			bindService(new Intent(getApplicationContext(), NewMessageChecker.class), serviceConnection, BIND_AUTO_CREATE);
 
 		usernameTV = findViewById(R.id.username_tv2);
 		messageET = findViewById(R.id.message_et);
@@ -65,6 +135,9 @@ public class MainActivity extends AppCompatActivity {
 
 		if(mAuth==null)
 			logout();
+
+		// Obtain the FirebaseAnalytics instance.
+		mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
 		fuser = mAuth.getCurrentUser();
 		reference = FirebaseDatabase.getInstance().getReference("Users").child(fuser.getUid());
@@ -87,10 +160,12 @@ public class MainActivity extends AppCompatActivity {
 
 	public void onSendClick(View v){
 		if(!messageET.getText().toString().isEmpty()){
+			mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE, new Bundle());
+
 			sendMessage(user.getUsername(), "All", messageET.getText().toString());
 			messageET.setText("");
-		}else
-			Toast.makeText(MainActivity.this, "Message is empty!", Toast.LENGTH_SHORT);
+		}//else
+			//Toast.makeText(MainActivity.this, "Message is empty!", Toast.LENGTH_SHORT).show();
 	}
 
 	private void sendMessage(String sender, String receiver, String message){
@@ -127,15 +202,21 @@ public class MainActivity extends AppCompatActivity {
 		reference.addValueEventListener(new ValueEventListener() {
 			@Override
 			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-				messages.clear();
+				if (user != null) {
+					messages.clear();
 
-				for(DataSnapshot snapshot: dataSnapshot.getChildren()){
-					Message message = snapshot.getValue(Message.class);
+					long count = dataSnapshot.getChildrenCount();
 
-					messages.add(message);
+					for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+						if(count-- < 100) {
+							Message message = snapshot.getValue(Message.class);
+
+							messages.add(message);
+						}
+					}
+					messageAdapter = new MessageAdapter(getApplicationContext(), messages, user.getUsername());
+					chatRecycle.setAdapter(messageAdapter);
 				}
-				messageAdapter = new MessageAdapter(getApplicationContext(), messages, user.getUsername());
-				chatRecycle.setAdapter(messageAdapter);
 			}
 
 			@Override
@@ -144,5 +225,21 @@ public class MainActivity extends AppCompatActivity {
 			}
 		});
 
+	}
+
+	private void createNotificationChannel() {
+		// Create the NotificationChannel, but only on API 26+ because
+		// the NotificationChannel class is new and not in the support library
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			CharSequence name = "Vobla chat messages";
+			String description = "New messages!!!";
+			int importance = NotificationManager.IMPORTANCE_DEFAULT;
+			NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+			channel.setDescription(description);
+			// Register the channel with the system; you can't change the importance
+			// or other notification behaviors after this
+			NotificationManager notificationManager = this.getSystemService(NotificationManager.class);
+			notificationManager.createNotificationChannel(channel);
+		}
 	}
 }
