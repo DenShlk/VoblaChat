@@ -27,7 +27,7 @@
             android:layout_marginTop="5dp"
             android:maxWidth="330dp"
             android:text="sender"
-            android:textColor="#B94C17"
+            android:textColor="@color/my_message_color"
             android:textSize="16sp" />
 
         <TextView

@@ -1,18 +1,25 @@
 package com.hyperspere.voblachat.Adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.hyperspere.voblachat.Model.Message;
 import com.hyperspere.voblachat.R;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
 
@@ -21,12 +28,30 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
 	private Context mContext;
 	private List<Message> messages;
+	private Map<String, Integer> user2color;
 	private String username;
+
+	private ArrayList<Integer> colors;
+	private int colorIndex = 0;
 
 	public MessageAdapter(Context mContext, List<Message> messages, String username){
 		this.mContext = mContext;
 		this.messages = messages;
 		this.username = username;
+
+		user2color = new HashMap<>();
+		user2color.put(username, ContextCompat.getColor(mContext, R.color.my_message_color));
+
+		colors = new ArrayList<>(Arrays.asList(
+				Color.parseColor("#E1C340"),
+				Color.parseColor("#FA26A0"),
+				Color.parseColor("#4CD7D0"),
+				Color.parseColor("#F8D210"),
+				Color.parseColor("#E09D60"),
+				Color.parseColor("#FF8000"),
+				Color.parseColor("#B0DB43"),
+				Color.parseColor("#9D1B6F")
+		));
 	}
 
 
@@ -47,6 +72,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 		Message message = messages.get(position);
 		holder.messageTV.setText(message.getMessage());
 		holder.usernameTV.setText(message.getSender());
+
+		if(!user2color.containsKey(message.getSender()))
+			user2color.put(message.getSender(), colors.get(colorIndex++ % colors.size()));
+
+		holder.usernameTV.setTextColor(user2color.get(message.getSender()));
 	}
 
 	@Override
@@ -62,6 +92,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 			super(itemView);
 
 			usernameTV = itemView.findViewById(R.id.username_tv2);
+
 			messageTV =  itemView.findViewById(R.id.message_tv);
 		}
 	}
