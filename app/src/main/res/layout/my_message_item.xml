@@ -23,18 +23,20 @@
             android:id="@+id/username_tv2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="15dp"
+            android:layout_marginLeft="20dp"
             android:layout_marginTop="5dp"
+            android:layout_marginRight="30dp"
             android:maxWidth="330dp"
             android:text="sender"
-            android:textColor="@color/my_message_color"
+            android:textColor="@color/colorMineMessage"
             android:textSize="16sp" />
 
         <TextView
             android:id="@+id/message_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="15dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="21dp"
             android:layout_marginBottom="8dp"
             android:maxWidth="330dp"
             android:text="Message"

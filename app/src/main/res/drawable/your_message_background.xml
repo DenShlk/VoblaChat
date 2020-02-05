@@ -1,21 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list
     xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item>
+        <color android:color="@color/colorBackground"/>
+    </item>
+
     <item
-        android:left="0dp">
+        android:left="10dp">
         <shape>
-            <gradient android:startColor="@color/colorPrimary" android:endColor="@color/colorPrimaryDark"/>
+            <gradient android:startColor="@color/colorPrimaryTransparent"
+                android:endColor="@color/colorPrimaryDarkTransparent"/>
             <corners android:radius="20.0dip" android:bottomLeftRadius="0dp"/>
         </shape>
     </item>
 
-    <item android:left="3dp"
+    <item android:left="13dp"
         android:right="3dp"
         android:top="3dp"
         android:bottom="3dp">
         <shape>
-            <solid android:color="@color/colorBackground"/>
+            <solid android:color="@color/colorMessageBackground"/>
             <corners android:radius="20.0dip" />
+        </shape>
+    </item>
+
+
+
+    <item
+        android:gravity="left"
+        android:left="-10.5dp"
+        android:width="20dp">
+        <shape>
+            <solid android:color="@color/colorPrimaryTransparent"/>
+        </shape>
+    </item>
+    <item
+        android:gravity="left"
+        android:left="-10dp"
+        android:width="20dp">
+        <shape>
+            <solid android:color="@color/colorBackground"/>
+            <corners android:bottomRightRadius="20dp"/>
         </shape>
     </item>
 </layer-list>

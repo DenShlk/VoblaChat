@@ -87,6 +87,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
+        android:autoSizeTextType="uniform"
+        android:singleLine="true"
         android:text="Welcome to Vobla Chat!"
         android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="@+id/toolbar"

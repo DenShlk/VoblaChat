@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,7 +39,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 		this.username = username;
 
 		user2color = new HashMap<>();
-		user2color.put(username, ContextCompat.getColor(mContext, R.color.my_message_color));
+		user2color.put(username, ContextCompat.getColor(mContext, R.color.colorMineMessage));
 
 		colors = new ArrayList<>(Arrays.asList(
 				Color.parseColor("#E1C340"),
