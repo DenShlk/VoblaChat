@@ -3,13 +3,13 @@ package com.hyperspere.voblachat;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -27,6 +27,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.hyperspere.voblachat.Adapter.MessageAdapter;
+import com.hyperspere.voblachat.Model.Chat;
 import com.hyperspere.voblachat.Model.Message;
 import com.hyperspere.voblachat.Model.User;
 
@@ -34,22 +35,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MessagingActivity extends AppCompatActivity {
 	static private final String CHANNEL_ID = "Vobla chat new messages";
 
 	private static final String TAG = "DEBUG_MAIN_ACTIVITY";
 
 	private FirebaseAnalytics mFirebaseAnalytics;
 	private FirebaseAuth mAuth;
-	private DatabaseReference reference;
 	private FirebaseUser fuser;
+	private DatabaseReference chatReference;
 	private User user;
+	private Chat chat;
 
-	private TextView usernameTV;
+	private TextView chatnameTV;
 
 	private EditText messageET;
-	private Button sendButton;
-	private RecyclerView chatRecycle;
+	private RecyclerView messagesRecycle;
 
 	private MessageAdapter messageAdapter;
 	private List<Message> messages;
@@ -86,20 +87,20 @@ public class MainActivity extends AppCompatActivity {
 	protected void onResume() {
 		super.onResume();
 		if(!connected)
-			bindService(new Intent(getApplicationContext(), NewMessageChecker.class), serviceConnection, BIND_IMPORTANT);
+			bindService(new Intent(getApplicationContext(), MessageCheckService.class), serviceConnection, BIND_IMPORTANT);
 	}
 
 	@Override
 	protected void onStart() {
 		super.onStart();
 		if(!connected)
-			bindService(new Intent(getApplicationContext(), NewMessageChecker.class), serviceConnection, BIND_IMPORTANT);
+			bindService(new Intent(getApplicationContext(), MessageCheckService.class), serviceConnection, BIND_IMPORTANT);
 	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.activity_messaging);
 
 		createNotificationChannel();
 
@@ -116,20 +117,19 @@ public class MainActivity extends AppCompatActivity {
 			}
 		};
 
-		startService(new Intent(getApplicationContext(), NewMessageChecker.class));
+		startService(new Intent(getApplicationContext(), MessageCheckService.class));
 
 		if(!connected)
-			bindService(new Intent(getApplicationContext(), NewMessageChecker.class), serviceConnection, BIND_AUTO_CREATE);
+			bindService(new Intent(getApplicationContext(), MessageCheckService.class), serviceConnection, BIND_AUTO_CREATE);
 
-		usernameTV = findViewById(R.id.username_tv2);
+		chatnameTV = findViewById(R.id.chatname_tv);
 		messageET = findViewById(R.id.message_et);
-		sendButton = findViewById(R.id.send_button);
-		chatRecycle = findViewById(R.id.chat_recycle);
+		messagesRecycle = findViewById(R.id.messages_recycle);
 
-		chatRecycle.setHasFixedSize(true);
+		messagesRecycle.setHasFixedSize(true);
 		LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
 		linearLayoutManager.setStackFromEnd(true);
-		chatRecycle.setLayoutManager(linearLayoutManager);
+		messagesRecycle.setLayoutManager(linearLayoutManager);
 
 		mAuth = FirebaseAuth.getInstance();
 
@@ -140,13 +140,15 @@ public class MainActivity extends AppCompatActivity {
 		mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
 		fuser = mAuth.getCurrentUser();
-		reference = FirebaseDatabase.getInstance().getReference("Users").child(fuser.getUid());
+		if(fuser==null)
+			logout();
 
-		reference.addValueEventListener(new ValueEventListener() {
+		DatabaseReference myReference = FirebaseDatabase.getInstance().getReference("Users").child(fuser.getUid());
+
+		myReference.addValueEventListener(new ValueEventListener() {
 			@Override
 			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 				user = dataSnapshot.getValue(User.class);
-				usernameTV.setText(user.getUsername());
 			}
 
 			@Override
@@ -155,32 +157,55 @@ public class MainActivity extends AppCompatActivity {
 			}
 		});
 
-		readMessages(fuser.getUid(), "All");
+		final String chatId = getIntent().getStringExtra("ChatId");
+		final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+		chatReference = FirebaseDatabase.getInstance().getReference("Chats").child(chatId);
+
+		chatReference.addListenerForSingleValueEvent(new ValueEventListener() {
+			@Override
+			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+				chat = new Chat(dataSnapshot);
+				notificationManager.cancel(chat.getName().hashCode());
+
+				if(chat.getName().length() > 15)
+					chatnameTV.setText(chat.getName().substring(0, 15) + "...");
+				else
+					chatnameTV.setText(chat.getName());
+
+				readMessages();
+			}
+
+			@Override
+			public void onCancelled(@NonNull DatabaseError databaseError) {
+
+			}
+		});
 	}
 
 	public void onSendClick(View v){
-		if(!messageET.getText().toString().isEmpty()){
+		if(!messageET.getText().toString().isEmpty() && chat!=null){
 			mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE, new Bundle());
 
-			sendMessage(user.getUsername(), "All", messageET.getText().toString());
+			sendMessage(user.getUsername(), chat.getName(), messageET.getText().toString());
 			messageET.setText("");
 		}//else
-			//Toast.makeText(MainActivity.this, "Message is empty!", Toast.LENGTH_SHORT).show();
+			//Toast.makeText(MessagingActivity.this, "Message is empty!", Toast.LENGTH_SHORT).show();
 	}
 
-	private void sendMessage(String sender, String receiver, String message){
-		DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+	private void sendMessage(String sender, String chat, String message){
 
-		HashMap<String, String> hashMap = new HashMap<>();
+		HashMap<String, Object> hashMap = new HashMap<>();
 		hashMap.put("sender", sender);
-		hashMap.put("receiver", receiver);
+		hashMap.put("chat", chat);
 		hashMap.put("message", message);
+		hashMap.put("viewed", false);// TODO: 06.02.2020
+		hashMap.put("delivered", false);
 
-		reference.child("Chats").push().setValue(hashMap);
+		chatReference.child("Messages").push().setValue(hashMap);
 	}
 
-	public void onLogoutClick(View view){
-		logout();
+	public void exitClick(View v){
+		finish();
 	}
 
 	void logout(){
@@ -188,18 +213,17 @@ public class MainActivity extends AppCompatActivity {
 			mAuth.signOut();
 		}
 
-		Intent intent = new Intent(MainActivity.this, StartActivity.class);
+		Intent intent = new Intent(MessagingActivity.this, StartActivity.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(intent);
 		finish();
 	}
 
-	private void readMessages(String myId, String chatId){
+	private void readMessages(){
 		messages = new ArrayList<>();
 
-		reference = FirebaseDatabase.getInstance().getReference("Chats");
 		messages.clear();
-		reference.addValueEventListener(new ValueEventListener() {
+		chatReference.child("Messages").addValueEventListener(new ValueEventListener() {
 			@Override
 			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 				if (user != null) {
@@ -215,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
 						}
 					}
 					messageAdapter = new MessageAdapter(getApplicationContext(), messages, user.getUsername());
-					chatRecycle.setAdapter(messageAdapter);
+					messagesRecycle.setAdapter(messageAdapter);
 				}
 			}
 

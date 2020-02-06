@@ -1,14 +1,14 @@
 package com.hyperspere.voblachat;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -58,7 +58,7 @@ public class StartActivity extends AppCompatActivity {
 						@Override
 						public void onComplete(@NonNull Task<Void> task) {
 
-							Intent intent = new Intent(StartActivity.this, MainActivity.class);
+							Intent intent = new Intent(StartActivity.this, ChatsListActivity.class);
 							intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 							startActivity(intent);
 							finish();
@@ -76,7 +76,7 @@ public class StartActivity extends AppCompatActivity {
 		FirebaseUser user = mAuth.getCurrentUser();
 
 		if(user!=null){
-			Intent intent = new Intent(StartActivity.this, MainActivity.class);
+			Intent intent = new Intent(StartActivity.this, ChatsListActivity.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 			startActivity(intent);
 			finish();

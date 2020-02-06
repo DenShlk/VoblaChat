@@ -9,25 +9,28 @@
         android:roundIcon="@mipmap/vobla_logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <service
-            android:name=".NewMessageChecker"
-            android:enabled="true"
-            android:exported="true" />
-        <receiver android:name=".BootBroadcast">
-            <intent-filter >
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-            </intent-filter>
-        </receiver>
-
-        <activity android:name=".MainActivity">
+        <activity android:name=".ChatAddActivity"></activity>
+        <activity android:name=".ChatsListActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".MessagingActivity" />
         <activity android:name=".StartActivity" />
+
+        <service
+            android:name=".MessageCheckService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <receiver android:name=".BootBroadcast">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

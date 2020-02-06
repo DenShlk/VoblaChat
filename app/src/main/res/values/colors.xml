@@ -8,4 +8,7 @@
     <color name="colorBackground">#292929</color>
     <color name="colorMessageBackground">#303030</color>
     <color name="colorMineMessage">#CE4C10</color>
+    <color name="colorChatItemBackground">#94F0DFD5</color>
+    <color name="colorUserItemBackground">#2E3666</color>
+    <color name="colorDarkText">#3B6A9C</color>
 </resources>

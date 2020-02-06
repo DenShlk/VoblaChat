@@ -90,7 +90,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 		public ViewHolder(@NonNull View itemView) {
 			super(itemView);
 
-			usernameTV = itemView.findViewById(R.id.username_tv2);
+			usernameTV = itemView.findViewById(R.id.username_tv);
 
 			messageTV =  itemView.findViewById(R.id.message_tv);
 		}
