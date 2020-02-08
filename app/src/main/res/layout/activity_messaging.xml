@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".StartActivity"
     android:theme="@style/Theme.AppCompat"
-    android:background="@drawable/background_gradient">
+    android:background="@drawable/background_fill">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -96,7 +96,6 @@
                 android:layout_marginLeft="18dp"
 
                 android:layout_marginTop="5dp"
-                android:layout_marginRight="18dp"
                 android:layout_marginBottom="5dp"
                 android:layout_weight="1"
 
@@ -108,6 +107,19 @@
                 android:minHeight="52dp"
                 android:textAlignment="gravity"
                 android:textSize="24sp" />
+
+            <ImageButton
+                android:id="@+id/photo_button"
+                style="@style/RoundedCornerButton"
+                android:layout_width="70dp"
+                android:layout_height="match_parent"
+                android:layout_marginRight="15dp"
+                android:layout_weight="1"
+                android:background="@drawable/transparent_background"
+                android:onClick="photoClick"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/ic_photo_camera_white_24dp" />
+
         </LinearLayout>
 
         <LinearLayout

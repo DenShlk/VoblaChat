@@ -10,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -28,7 +27,6 @@ import java.util.List;
 public class ChatsListActivity extends AppCompatActivity {
 	
 	private FirebaseAuth mAuth;
-	private DatabaseReference myRef;
 	private FirebaseUser fuser;
 	private User user;
 
@@ -36,7 +34,6 @@ public class ChatsListActivity extends AppCompatActivity {
 
 	private TextView usernameTV;
 
-	private FloatingActionButton addChatButton;
 	private RecyclerView chatsRecycle;
 
 	@Override
@@ -45,7 +42,6 @@ public class ChatsListActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_chats_list);
 
 		usernameTV = findViewById(R.id.username_tv);
-		addChatButton = findViewById(R.id.add_chat_button);
 		chatsRecycle = findViewById(R.id.messages_recycle);
 
 		chatsRecycle.setHasFixedSize(true);
@@ -62,7 +58,7 @@ public class ChatsListActivity extends AppCompatActivity {
 		if(fuser==null)
 			logout();
 
-		myRef = FirebaseDatabase.getInstance().getReference("Users").child(fuser.getUid());
+		DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("Users").child(fuser.getUid());
 
 		myRef.addValueEventListener(new ValueEventListener() {
 			@Override
@@ -93,7 +89,7 @@ public class ChatsListActivity extends AppCompatActivity {
 						public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 							chats.add(new Chat(dataSnapshot));
 							if(chats.size() == myChatsCount) {
-								ChatAdapter chatAdapter = new ChatAdapter(ChatsListActivity.this, chats);
+								ChatAdapter chatAdapter = new ChatAdapter(ChatsListActivity.this, chats, user);
 								chatsRecycle.setAdapter(chatAdapter);
 							}
 						}
@@ -104,10 +100,6 @@ public class ChatsListActivity extends AppCompatActivity {
 						}
 					});
 				}
-
-
-				ChatAdapter chatAdapter = new ChatAdapter(ChatsListActivity.this, chats);
-				chatsRecycle.setAdapter(chatAdapter);
 			}
 
 			@Override
@@ -128,6 +120,11 @@ public class ChatsListActivity extends AppCompatActivity {
 
 		Intent intent = new Intent(ChatsListActivity.this, StartActivity.class);
 		startActivity(intent);
+
+		mAuth = FirebaseAuth.getInstance();
+
+		if(mAuth!=null)
+			fuser = mAuth.getCurrentUser();
 	}
 
 	public void addChatClick(View v){

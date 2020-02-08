@@ -6,7 +6,26 @@
     android:layout_height="match_parent"
     tools:context=".StartActivity"
     android:theme="@style/Theme.AppCompat"
-    android:background="@drawable/background_gradient">
+    android:background="@drawable/background_fill">
+
+
+
+    <Button
+        android:id="@+id/login_button"
+        android:layout_width="300dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="80dp"
+        android:background="@drawable/button_background"
+        android:onClick="onLoginClick"
+        android:text="Log In"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.504"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/register_button" />
+
 
 
     <Button
@@ -18,25 +37,10 @@
         android:onClick="onRegisterClick"
         android:text="Register"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/login_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/password_et" />
-
-    <Button
-        android:id="@+id/login_button"
-        android:layout_width="300dp"
-        android:layout_height="60dp"
-        android:layout_marginBottom="80dp"
-        android:background="@drawable/button_background"
-        android:onClick="onLoginClick"
-        android:text="Log In"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.504"
-        app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
         android:id="@+id/email_et"

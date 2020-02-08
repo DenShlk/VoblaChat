@@ -122,6 +122,10 @@ public class ChatAddActivity extends AppCompatActivity {
 		}
 	}
 
+	public void exitClick(View v){
+		finish();
+	}
+
 	void logout(){
 		if(mAuth!=null){
 			mAuth.signOut();

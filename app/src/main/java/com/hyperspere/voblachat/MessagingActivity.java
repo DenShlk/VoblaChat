@@ -1,16 +1,23 @@
 package com.hyperspere.voblachat;
 
+import android.app.ActivityManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,6 +25,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -26,30 +35,42 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.hyperspere.voblachat.Adapter.MessageAdapter;
 import com.hyperspere.voblachat.Model.Chat;
 import com.hyperspere.voblachat.Model.Message;
 import com.hyperspere.voblachat.Model.User;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 public class MessagingActivity extends AppCompatActivity {
 	static private final String CHANNEL_ID = "Vobla chat new messages";
 
 	private static final String TAG = "DEBUG_MAIN_ACTIVITY";
+	private static final int PICK_IMAGE_REQUEST = 1;
 
 	private FirebaseAnalytics mFirebaseAnalytics;
 	private FirebaseAuth mAuth;
 	private FirebaseUser fuser;
 	private DatabaseReference chatReference;
+
+	private StorageReference storageRef;
+
 	private User user;
 	private Chat chat;
 
 	private TextView chatnameTV;
 
 	private EditText messageET;
+	private ImageButton photoButton;
 	private RecyclerView messagesRecycle;
 
 	private MessageAdapter messageAdapter;
@@ -86,15 +107,23 @@ public class MessagingActivity extends AppCompatActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if(!connected)
-			bindService(new Intent(getApplicationContext(), MessageCheckService.class), serviceConnection, BIND_IMPORTANT);
+
+		connected = isServiceRunning(MessageCheckService.class);
+		if(!connected) {
+			startService(new Intent(getApplicationContext(), MessageCheckService.class));
+		}
+		connected = bindService(new Intent(getApplicationContext(), MessageCheckService.class), serviceConnection, BIND_AUTO_CREATE);
 	}
 
 	@Override
 	protected void onStart() {
 		super.onStart();
-		if(!connected)
-			bindService(new Intent(getApplicationContext(), MessageCheckService.class), serviceConnection, BIND_IMPORTANT);
+
+		connected = isServiceRunning(MessageCheckService.class);
+		if(!connected) {
+			startService(new Intent(getApplicationContext(), MessageCheckService.class));
+		}
+		connected = bindService(new Intent(getApplicationContext(), MessageCheckService.class), serviceConnection, BIND_AUTO_CREATE);
 	}
 
 	@Override
@@ -105,7 +134,6 @@ public class MessagingActivity extends AppCompatActivity {
 		createNotificationChannel();
 
 		serviceConnection = new ServiceConnection() {
-
 			@Override
 			public void onServiceConnected(ComponentName name, IBinder service) {
 				connected = true;
@@ -117,14 +145,34 @@ public class MessagingActivity extends AppCompatActivity {
 			}
 		};
 
-		startService(new Intent(getApplicationContext(), MessageCheckService.class));
+		connected = isServiceRunning(MessageCheckService.class);
+		if(!connected) {
+			startService(new Intent(getApplicationContext(), MessageCheckService.class));
+		}
+		connected = bindService(new Intent(getApplicationContext(), MessageCheckService.class), serviceConnection, BIND_AUTO_CREATE);
 
-		if(!connected)
-			bindService(new Intent(getApplicationContext(), MessageCheckService.class), serviceConnection, BIND_AUTO_CREATE);
 
 		chatnameTV = findViewById(R.id.chatname_tv);
 		messageET = findViewById(R.id.message_et);
+		photoButton = findViewById(R.id.photo_button);
 		messagesRecycle = findViewById(R.id.messages_recycle);
+
+		messageET.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				if(messageET.getText().length()>0){
+					photoButton.setVisibility(View.INVISIBLE);
+				}else{
+					photoButton.setVisibility(View.VISIBLE);
+				}
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {}
+		});
 
 		messagesRecycle.setHasFixedSize(true);
 		LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
@@ -143,6 +191,8 @@ public class MessagingActivity extends AppCompatActivity {
 		if(fuser==null)
 			logout();
 
+		storageRef = FirebaseStorage.getInstance().getReference();
+
 		DatabaseReference myReference = FirebaseDatabase.getInstance().getReference("Users").child(fuser.getUid());
 
 		myReference.addValueEventListener(new ValueEventListener() {
@@ -152,9 +202,7 @@ public class MessagingActivity extends AppCompatActivity {
 			}
 
 			@Override
-			public void onCancelled(@NonNull DatabaseError databaseError) {
-
-			}
+			public void onCancelled(@NonNull DatabaseError databaseError) {	}
 		});
 
 		final String chatId = getIntent().getStringExtra("ChatId");
@@ -182,26 +230,96 @@ public class MessagingActivity extends AppCompatActivity {
 		});
 	}
 
+	private boolean isServiceRunning(Class<?> serviceClass) {
+		ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+		for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+			if (serviceClass.getName().equals(service.service.getClassName())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public void onSendClick(View v){
 		if(!messageET.getText().toString().isEmpty() && chat!=null){
 			mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE, new Bundle());
 
-			sendMessage(user.getUsername(), chat.getName(), messageET.getText().toString());
+			sendMessage(messageET.getText().toString());
 			messageET.setText("");
 		}//else
 			//Toast.makeText(MessagingActivity.this, "Message is empty!", Toast.LENGTH_SHORT).show();
 	}
 
-	private void sendMessage(String sender, String chat, String message){
+	public void photoClick(View v){
+		Intent intent = new Intent();
+		intent.setType("image/*");
+		intent.setAction(Intent.ACTION_GET_CONTENT);
+		startActivityForResult(intent, PICK_IMAGE_REQUEST);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		//Log.d("lol", String.valueOf(requestCode));
+		//Log.d("lol", String.valueOf(resultCode));
+
+		if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
+		&& data != null && data.getData()!=null) {
+			Uri filePath = data.getData();
+			try {
+				Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+
+				sendMessage(bitmap);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void sendMessage(String message){
 
 		HashMap<String, Object> hashMap = new HashMap<>();
-		hashMap.put("sender", sender);
-		hashMap.put("chat", chat);
+		hashMap.put("sender", user.getUsername());
+		hashMap.put("chat", chat.getName());
 		hashMap.put("message", message);
+		hashMap.put("type", Message.MESSAGE_TYPE_TEXT);
 		hashMap.put("viewed", false);// TODO: 06.02.2020
 		hashMap.put("delivered", false);
 
 		chatReference.child("Messages").push().setValue(hashMap);
+	}
+
+	private void sendMessage(Bitmap image){
+
+		final HashMap<String, Object> hashMap = new HashMap<>();
+		hashMap.put("sender", user.getUsername());
+		hashMap.put("chat", chat.getName());
+		hashMap.put("type", Message.MESSAGE_TYPE_PHOTO);
+		hashMap.put("viewed", false);// TODO: 06.02.2020
+		hashMap.put("delivered", false);
+
+		String imagePath = "Images/" + UUID.randomUUID();
+		hashMap.put("imagePath", imagePath);
+
+		try {
+			final String fileName = imagePath.substring(imagePath.indexOf("/") + 1) + ".jpg";
+			OutputStream outStream = getApplicationContext().openFileOutput(fileName, Context.MODE_PRIVATE);
+			image.compress(Bitmap.CompressFormat.PNG, 85, outStream);
+			outStream.close();
+
+			File file = new File(getFilesDir(), fileName);
+
+			StorageReference ref = storageRef.child(imagePath);
+			ref.putFile(android.net.Uri.fromFile(file)).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+				@Override
+				public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+					chatReference.child("Messages").push().setValue(hashMap);
+				}
+			});
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	public void exitClick(View v){

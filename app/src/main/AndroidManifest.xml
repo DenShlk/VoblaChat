@@ -9,8 +9,8 @@
         android:roundIcon="@mipmap/vobla_logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ChatAddActivity"></activity>
-        <activity android:name=".ChatsListActivity" >
+        <activity android:name=".ChatAddActivity" />
+        <activity android:name=".ChatsListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -33,4 +33,6 @@
 
     </application>
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 </manifest>

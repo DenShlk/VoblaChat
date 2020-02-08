@@ -48,22 +48,10 @@ public class StartActivity extends AppCompatActivity {
 				FirebaseUser user = firebaseAuth.getCurrentUser();
 
 				if(user!=null) {
-					reference = FirebaseDatabase.getInstance().getReference("Users").child(user.getUid());
-
-					HashMap<String, String> hashMap = new HashMap<>();
-					hashMap.put("id", user.getUid());
-					hashMap.put("username", user.getEmail().substring(0, user.getEmail().indexOf("@")));
-
-					reference.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-						@Override
-						public void onComplete(@NonNull Task<Void> task) {
-
-							Intent intent = new Intent(StartActivity.this, ChatsListActivity.class);
-							intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-							startActivity(intent);
-							finish();
-						}
-					});
+					Intent intent = new Intent(StartActivity.this, ChatsListActivity.class);
+					intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+					startActivity(intent);
+					finish();
 				}
 			}
 		});
@@ -90,15 +78,19 @@ public class StartActivity extends AppCompatActivity {
 						@Override
 						public void onComplete(@NonNull Task<AuthResult> task) {
 							if (task.isSuccessful()) {
-								// Sign in success, update UI with the signed-in user's information
-								Log.d(TAG, "createUserWithEmail:success");
-								Toast.makeText(StartActivity.this, "Authentication ok.",
-										Toast.LENGTH_SHORT).show();
+								FirebaseUser user = mAuth.getCurrentUser();
+
+								reference = FirebaseDatabase.getInstance().getReference("Users").child(user.getUid());
+
+								HashMap<String, String> hashMap = new HashMap<>();
+								hashMap.put("id", user.getUid());
+								hashMap.put("username", user.getEmail().substring(0, user.getEmail().indexOf("@")));
+
+								reference.setValue(hashMap);
 							} else {
+								Toast.makeText(getApplicationContext(), task.getException().getLocalizedMessage(), Toast.LENGTH_SHORT).show();
 								// If sign in fails, display a message to the user.
 								Log.w(TAG, "createUserWithEmail:failure", task.getException());
-								Toast.makeText(StartActivity.this, "Authentication failed.",
-										Toast.LENGTH_SHORT).show();
 							}
 
 							// ...
@@ -115,14 +107,12 @@ public class StartActivity extends AppCompatActivity {
 							if (task.isSuccessful()) {
 								// Sign in success, update UI with the signed-in user's information
 								Log.d(TAG, "signInWithEmail:success");
-								Toast.makeText(StartActivity.this, "Authentication ok.",
-										Toast.LENGTH_SHORT).show();
 
 							} else {
 								// If sign in fails, display a message to the user.
 								Log.w(TAG, "signInWithEmail:failure", task.getException());
-								Toast.makeText(StartActivity.this, "Authentication failed.",
-										Toast.LENGTH_SHORT).show();
+
+								Toast.makeText(getApplicationContext(), task.getException().getLocalizedMessage(), Toast.LENGTH_SHORT).show();
 							}
 
 							// ...

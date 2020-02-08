@@ -7,6 +7,7 @@ import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -34,7 +35,16 @@ public class MessageCheckService extends Service {
 	@Override
 	public void unbindService(ServiceConnection conn) {
 		super.unbindService(conn);
+
+		//Toast.makeText(this, "unbindService", Toast.LENGTH_SHORT).show();
+
 		running = true;
+	}
+
+	@Override
+	public void onTaskRemoved(Intent rootIntent) {
+		super.onTaskRemoved(rootIntent);
+		notificate(new Message("system","", "removed", false,false), "0");
 	}
 
 	@Override
@@ -109,6 +119,8 @@ public class MessageCheckService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		running = false;
 
+		Toast.makeText(this, "onStartCommand", Toast.LENGTH_SHORT).show();
+
 		return Service.START_STICKY;
 	}
 
@@ -126,6 +138,7 @@ public class MessageCheckService extends Service {
 	@Override
 	public IBinder onBind(Intent intent) {
 		//Toast.makeText(MessageCheckService.this, "bind", Toast.LENGTH_SHORT).show();
+
 		Log.d("onbind", "false");
 		running = false;
 		return mBinder;
@@ -137,6 +150,7 @@ public class MessageCheckService extends Service {
 
 		//Toast.makeText(MessageCheckService.this, "rebind", Toast.LENGTH_SHORT).show();
 		Log.d("rebind", "false");
+
 
 		running = false;
 	}

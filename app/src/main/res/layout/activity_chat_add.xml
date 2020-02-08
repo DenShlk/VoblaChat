@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".StartActivity"
     android:theme="@style/Theme.AppCompat"
-    android:background="@drawable/background_gradient">
+    android:background="@drawable/background_fill">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -19,16 +19,43 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/username_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:text="Username"
-        android:textSize="30sp"
-        app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="30dp"
+        android:gravity="left|center_vertical"
+        app:layout_constraintBottom_toTopOf="@+id/messages_recycle"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/exit_button"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:layout_marginVertical="10dp"
+            android:layout_marginRight="5dp"
+            android:onClick="exitClick"
+            android:scaleType="fitXY"
+            android:tint="#00FFFFFF"
+            android:background="@drawable/transparent_background"
+            app:srcCompat="@drawable/ic_arrow_back_black_24dp" />
+
+        <TextView
+            android:id="@+id/username_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="2dp"
+            android:autoSizeTextType="uniform"
+            android:inputType="textNoSuggestions|text"
+            android:singleLine="true"
+            android:text="Username"
+            android:textSize="35sp"
+            app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/linearLayout2"

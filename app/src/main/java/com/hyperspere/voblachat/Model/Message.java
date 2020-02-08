@@ -3,7 +3,30 @@ package com.hyperspere.voblachat.Model;
 public class Message {
 	private String sender, chat;
 	private String message;
+	private String imagePath;
+
 	private boolean viewed, delivered;
+	private int type;
+
+	public static final int MESSAGE_TYPE_TEXT = 1;
+	public static final int MESSAGE_TYPE_PHOTO = 2;
+
+	public Message(String sender, String chat, String message, boolean viewed, boolean delivered) {
+		this.sender = sender;
+		this.chat = chat;
+		this.message = message;
+		this.viewed = viewed;
+		this.delivered = delivered;
+		type = MESSAGE_TYPE_TEXT;
+	}
+
+	public String getImagePath() {
+		return imagePath;
+	}
+
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
+	}
 
 	public String getSender() {
 		return sender;
@@ -45,12 +68,12 @@ public class Message {
 		this.delivered = delivered;
 	}
 
-	public Message(String sender, String chat, String message, boolean viewed, boolean delivered) {
-		this.sender = sender;
-		this.chat = chat;
-		this.message = message;
-		this.viewed = viewed;
-		this.delivered = delivered;
+	public int getType() {
+		return type;
+	}
+
+	public void setType(int type) {
+		this.type = type;
 	}
 
 	public Message() {

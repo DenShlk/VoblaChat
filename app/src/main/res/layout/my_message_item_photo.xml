@@ -6,6 +6,7 @@
     android:layout_gravity="right"
     android:layout_marginVertical="2dp"
     android:layout_marginEnd="0dp"
+    android:layout_marginRight="0dp"
     android:layout_marginStart="40dp"
     android:layout_marginBottom="10dp"
     android:gravity="right"
@@ -16,7 +17,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/my_message_background"
+        android:background="@drawable/my_message_photo_background"
         android:orientation="vertical">
 
         <TextView
@@ -26,21 +27,23 @@
             android:layout_marginLeft="20dp"
             android:layout_marginTop="5dp"
             android:layout_marginRight="30dp"
+            android:maxWidth="330dp"
             android:text="sender"
             android:textColor="@color/colorMineMessage"
             android:textSize="16sp" />
 
-        <TextView
-            android:id="@+id/message_tv"
+        <ImageView
+            android:id="@+id/image_iv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="21dp"
-            android:layout_marginBottom="8dp"
-            android:maxWidth="330dp"
-            android:text="Message"
-            android:textColor="#F7FFFFFF"
-            android:textSize="18sp" />
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/rounded_photo_shape"
+            android:adjustViewBounds="true"
+            android:scaleType="centerInside"
+            app:srcCompat="@mipmap/ic_launcher" />
+
     </LinearLayout>
 
 </LinearLayout>
