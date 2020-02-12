@@ -46,7 +46,6 @@ import com.hyperspere.voblachat.Model.User;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -338,26 +337,38 @@ public class MessagingActivity extends AppCompatActivity {
 	}
 
 	private void readMessages(){
-		messages = new ArrayList<>();
+		messageAdapter = new MessageAdapter(getApplicationContext(), user.getUsername());
+		messagesRecycle.setAdapter(messageAdapter);
 
-		messages.clear();
+		messages = messageAdapter.getMessages();
+
 		chatReference.child("Messages").addValueEventListener(new ValueEventListener() {
 			@Override
 			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 				if (user != null) {
-					messages.clear();
+					//messages.clear();
 
 					long count = dataSnapshot.getChildrenCount();
-
+					int index = 0;
 					for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-						if(count-- < 100) {
-							Message message = snapshot.getValue(Message.class);
 
+						Message message = snapshot.getValue(Message.class);
+
+						if (index < messages.size()) {
+							if (!message.compare(messages.get(index))) {
+								messages.set(index, message);
+								messageAdapter.notifyItemChanged(index);
+							}
+						} else {
 							messages.add(message);
+							messageAdapter.notifyItemInserted(index);
 						}
+
+						index++;
+
 					}
-					messageAdapter = new MessageAdapter(getApplicationContext(), messages, user.getUsername());
-					messagesRecycle.setAdapter(messageAdapter);
+
+					messagesRecycle.scrollToPosition(messages.size() - 1);
 				}
 			}
 

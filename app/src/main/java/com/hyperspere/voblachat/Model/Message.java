@@ -20,6 +20,13 @@ public class Message {
 		type = MESSAGE_TYPE_TEXT;
 	}
 
+	public boolean compare(Message msg){
+		return msg.sender.equals(sender) &&
+				msg.chat.equals(chat) &&
+				msg.type == type &&
+				(type == MESSAGE_TYPE_TEXT ? msg.message.equals(message) : msg.imagePath.equals(imagePath));
+	}
+
 	public String getImagePath() {
 		return imagePath;
 	}

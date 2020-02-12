@@ -50,9 +50,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
 	private StorageReference storageRef;
 
-	public MessageAdapter(Context context, List<Message> messages, String username){
+	public List<Message> getMessages() {
+		return messages;
+	}
+
+	public MessageAdapter(Context context, String username){
 		this.context = context;
-		this.messages = messages;
+		this.messages = new ArrayList<>();
 		this.username = username;
 
 		user2color = new HashMap<>();
