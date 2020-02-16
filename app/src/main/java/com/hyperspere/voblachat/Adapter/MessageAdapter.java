@@ -117,6 +117,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 			final File file = new File(context.getFilesDir(),  fileName);
 			if (file.exists()) {
 				holder.imageIV.setImageBitmap(readBitmap(file));
+				ViewGroup.LayoutParams params = holder.imageIV.getLayoutParams();
 				//Toast.makeText(context, "read from storage", Toast.LENGTH_SHORT).show();
 			} else {
 				imageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
@@ -133,7 +134,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 									stream.close();
 
 									OutputStream outStream = context.openFileOutput(fileName, Context.MODE_PRIVATE);
-									image.compress(Bitmap.CompressFormat.PNG, 85, outStream);
+									image.compress(Bitmap.CompressFormat.PNG, 15, outStream);
 									outStream.flush();
 									outStream.close();
 

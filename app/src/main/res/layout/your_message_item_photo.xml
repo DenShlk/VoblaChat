@@ -34,10 +34,10 @@
             android:layout_marginLeft="15dp"
             android:layout_marginRight="5dp"
             android:layout_marginBottom="5dp"
-            android:background="@drawable/rounded_photo_shape"
             android:adjustViewBounds="true"
+            android:background="@drawable/rounded_photo_shape"
             android:scaleType="centerInside"
-            app:srcCompat="@drawable/test_wide_image" />
+            app:srcCompat="@mipmap/vobla_logo" />
 
     </LinearLayout>
 

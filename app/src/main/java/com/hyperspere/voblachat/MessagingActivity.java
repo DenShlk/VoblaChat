@@ -39,9 +39,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.hyperspere.voblachat.Adapter.MessageAdapter;
-import com.hyperspere.voblachat.Model.Chat;
-import com.hyperspere.voblachat.Model.Message;
-import com.hyperspere.voblachat.Model.User;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,6 +46,10 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+
+import com.hyperspere.voblachat.Model.*;
+
+import pl.droidsonroids.gif.GifImageView;
 
 public class MessagingActivity extends AppCompatActivity {
 	static private final String CHANNEL_ID = "Vobla chat new messages";
@@ -71,6 +72,7 @@ public class MessagingActivity extends AppCompatActivity {
 	private EditText messageET;
 	private ImageButton photoButton;
 	private RecyclerView messagesRecycle;
+	private GifImageView loadingGif;
 
 	private MessageAdapter messageAdapter;
 	private List<Message> messages;
@@ -150,7 +152,7 @@ public class MessagingActivity extends AppCompatActivity {
 		}
 		connected = bindService(new Intent(getApplicationContext(), MessageCheckService.class), serviceConnection, BIND_AUTO_CREATE);
 
-
+		loadingGif = findViewById(R.id.loading_gif);
 		chatnameTV = findViewById(R.id.chatname_tv);
 		messageET = findViewById(R.id.message_et);
 		photoButton = findViewById(R.id.photo_button);
@@ -320,7 +322,7 @@ public class MessagingActivity extends AppCompatActivity {
 		try {
 			final String fileName = imagePath.substring(imagePath.indexOf("/") + 1) + ".jpg";
 			OutputStream outStream = getApplicationContext().openFileOutput(fileName, Context.MODE_PRIVATE);
-			image.compress(Bitmap.CompressFormat.PNG, 85, outStream);
+			image.compress(Bitmap.CompressFormat.PNG, 25, outStream);
 			outStream.close();
 
 			File file = new File(getFilesDir(), fileName);
@@ -333,6 +335,7 @@ public class MessagingActivity extends AppCompatActivity {
 					chatReference.child("lastMessage").setValue(hashMap);
 				}
 			});
+			// TODO: 16.02.2020 Tint!! 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

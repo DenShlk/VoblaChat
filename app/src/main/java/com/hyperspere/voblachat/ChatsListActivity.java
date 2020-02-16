@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import pl.droidsonroids.gif.GifImageView;
+
 public class ChatsListActivity extends AppCompatActivity {
 	
 	private FirebaseAuth mAuth;
@@ -34,7 +36,7 @@ public class ChatsListActivity extends AppCompatActivity {
 	private List<Chat> chats;
 
 	private TextView usernameTV;
-
+	private GifImageView loadingGif;
 	private RecyclerView chatsRecycle;
 
 	private long lastFill;
@@ -58,6 +60,7 @@ public class ChatsListActivity extends AppCompatActivity {
 
 		usernameTV = findViewById(R.id.username_tv);
 		chatsRecycle = findViewById(R.id.messages_recycle);
+		loadingGif = findViewById(R.id.loading_gif);
 
 		chatsRecycle.setHasFixedSize(true);
 		LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
@@ -125,6 +128,8 @@ public class ChatsListActivity extends AppCompatActivity {
 									if (chats.size() == myChatsCount) {
 										ChatAdapter chatAdapter = new ChatAdapter(ChatsListActivity.this, chats, user);
 										chatsRecycle.setAdapter(chatAdapter);
+
+										loadingComplete();
 									}
 								}
 
@@ -170,5 +175,11 @@ public class ChatsListActivity extends AppCompatActivity {
 	public void addChatClick(View v){
 		Intent intent = new Intent(ChatsListActivity.this, ChatAddActivity.class);
 		startActivity(intent);
+	}
+
+	void loadingComplete(){
+		loadingGif.setVisibility(View.INVISIBLE);
+		loadingGif.setEnabled(false);
+		loadingGif.setFocusable(false);
 	}
 }
