@@ -9,6 +9,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.hyperspere.voblachat.Model.User;
@@ -50,8 +51,9 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 	}
 
 	public class ViewHolder extends RecyclerView.ViewHolder{
-		public TextView usernameTV;
-		public CheckBox checkBox;
+		private TextView usernameTV;
+		private CheckBox checkBox;
+		private ConstraintLayout layout;
 		User user;
 
 		public ViewHolder(@NonNull View itemView) {
@@ -59,6 +61,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
 			usernameTV = itemView.findViewById(R.id.username_tv);
 			checkBox = itemView.findViewById(R.id.user_add_checkbox);
+			layout = itemView.findViewById(R.id.user_item_layout);
 			checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 				@Override
 				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -69,7 +72,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 						checked.remove(user);
 				}
 			});
-			itemView.setOnClickListener(new View.OnClickListener() {
+
+			layout.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					checkBox.setChecked(!checkBox.isChecked());

@@ -12,6 +12,16 @@ public class Chat {
 	private List<String> members;
 	private List<String> messages;
 
+	private Message lastMessage;
+
+	public Message getLastMessage() {
+		return lastMessage;
+	}
+
+	public void setLastMessage(Message lastMessage) {
+		this.lastMessage = lastMessage;
+	}
+
 	public Chat(String id, String name, List<String> members, List<String> messages) {
 		this.id = id;
 		this.name = name;
@@ -27,6 +37,7 @@ public class Chat {
 		for(DataSnapshot memberId : membersSnapshot.getChildren()){
 			members.add(memberId.getValue(String.class));
 		}
+		lastMessage = snapshot.child("lastMessage").getValue(Message.class);
 	}
 
 	public Chat() {

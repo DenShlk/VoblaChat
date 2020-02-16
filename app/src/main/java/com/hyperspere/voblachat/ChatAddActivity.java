@@ -102,7 +102,7 @@ public class ChatAddActivity extends AppCompatActivity {
 			toAdd.add(user);
 
 			DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("Chats").push();
-			chatRef.child("Name").setValue(chatName.getText().toString());
+			//chatRef.child("Name").setValue(chatName.getText().toString());
 
 
 
@@ -111,12 +111,17 @@ public class ChatAddActivity extends AppCompatActivity {
 				membersRef.push().setValue(mUser.getId());
 
 				DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(mUser.getId());
-				userRef.child("MyChats").push().setValue(chatRef.getKey());
+				DatabaseReference curChat = userRef.child("MyChats").push();
+				curChat.setValue(chatRef.getKey());
+				userRef.child("MyChatsNames").child(chatRef.getKey()).setValue(chatName.getText().toString());
+
 			}
 
 			DatabaseReference messagesRef = chatRef.child("Messages");
-			messagesRef.push().setValue(new Message(user.getUsername(), chatName.getText().toString(),
-					"Chat created by " + user.getUsername(), false, false));
+			Message first = new Message(user.getUsername(), chatName.getText().toString(),
+					"Chat created by " + user.getUsername(), false, false);
+			messagesRef.push().setValue(first);
+			chatRef.child("lastMessage").setValue(first);
 
 			finish();
 		}

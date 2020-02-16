@@ -193,31 +193,47 @@ public class MessagingActivity extends AppCompatActivity {
 		storageRef = FirebaseStorage.getInstance().getReference();
 
 		DatabaseReference myReference = FirebaseDatabase.getInstance().getReference("Users").child(fuser.getUid());
+		final String chatId = getIntent().getStringExtra("ChatId");
 
 		myReference.addValueEventListener(new ValueEventListener() {
 			@Override
 			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 				user = dataSnapshot.getValue(User.class);
+
+				//это шиндец 1
+				if(chat==null)
+					chat = new Chat();
+				chat.setName( dataSnapshot.child("MyChatsNames").child(chatId).getValue(String.class));
+
+				if(chat.getName().length() > 15)
+					chatnameTV.setText(chat.getName().substring(0, 15) + "...");
+				else
+					chatnameTV.setText(chat.getName());
 			}
 
 			@Override
 			public void onCancelled(@NonNull DatabaseError databaseError) {	}
 		});
 
-		final String chatId = getIntent().getStringExtra("ChatId");
 		final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 		chatReference = FirebaseDatabase.getInstance().getReference("Chats").child(chatId);
 
 		chatReference.addListenerForSingleValueEvent(new ValueEventListener() {
 			@Override
 			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+				//это шиндец 2
+				String chatName = null;
+				if(chat!=null)
+					chatName = chat.getName();
 				chat = new Chat(dataSnapshot);
+				if(chatName!=null)
+					chat.setName(chatName);
+
 				notificationManager.cancel(chat.getName().hashCode());
 
-				if(chat.getName().length() > 15)
-					chatnameTV.setText(chat.getName().substring(0, 15) + "...");
-				else
-					chatnameTV.setText(chat.getName());
+				DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("Users").child(user.getId());
+				DatabaseReference myChatsNamesRef = myRef.child("MyChatsNames");
+
 
 				readMessages();
 			}
@@ -286,6 +302,7 @@ public class MessagingActivity extends AppCompatActivity {
 		hashMap.put("delivered", false);
 
 		chatReference.child("Messages").push().setValue(hashMap);
+		chatReference.child("lastMessage").setValue(hashMap);
 	}
 
 	private void sendMessage(Bitmap image){
@@ -313,6 +330,7 @@ public class MessagingActivity extends AppCompatActivity {
 				@Override
 				public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
 					chatReference.child("Messages").push().setValue(hashMap);
+					chatReference.child("lastMessage").setValue(hashMap);
 				}
 			});
 		} catch (IOException e) {

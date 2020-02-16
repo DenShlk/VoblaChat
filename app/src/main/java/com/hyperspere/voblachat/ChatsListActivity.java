@@ -22,6 +22,7 @@ import com.hyperspere.voblachat.Model.Chat;
 import com.hyperspere.voblachat.Model.User;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class ChatsListActivity extends AppCompatActivity {
@@ -36,8 +37,22 @@ public class ChatsListActivity extends AppCompatActivity {
 
 	private RecyclerView chatsRecycle;
 
+	private long lastFill;
+
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onStart() {
+		super.onStart();
+		fillRecycle();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		fillRecycle();
+	}
+
+	@Override
+	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_chats_list);
 
@@ -58,7 +73,15 @@ public class ChatsListActivity extends AppCompatActivity {
 		if(fuser==null)
 			logout();
 
-		DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("Users").child(fuser.getUid());
+		fillRecycle();
+	}
+
+	void fillRecycle(){
+		if(System.currentTimeMillis() - lastFill < 1000)
+			return;// что бы во всяких onStart не вызывалось
+		lastFill = System.currentTimeMillis();
+
+		final DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("Users").child(fuser.getUid());
 
 		myRef.addValueEventListener(new ValueEventListener() {
 			@Override
@@ -74,37 +97,54 @@ public class ChatsListActivity extends AppCompatActivity {
 			}
 		});
 
-		DatabaseReference myChatsRef = myRef.child("MyChats");
-		chats = new ArrayList<>();
-		myChatsRef.addValueEventListener(new ValueEventListener() {
+		DatabaseReference myChatsNamesRef = myRef.child("MyChatsNames");
+		myChatsNamesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
 			@Override
 			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-				chats = new ArrayList<>();
-				final DatabaseReference chatsRef = FirebaseDatabase.getInstance().getReference("Chats");
-				final long myChatsCount = dataSnapshot.getChildrenCount();
-				for(DataSnapshot snapshot : dataSnapshot.getChildren()){
-					String chatId = snapshot.getValue(String.class);
-					chatsRef.child(chatId).addListenerForSingleValueEvent(new ValueEventListener() {
-						@Override
-						public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-							chats.add(new Chat(dataSnapshot));
-							if(chats.size() == myChatsCount) {
-								ChatAdapter chatAdapter = new ChatAdapter(ChatsListActivity.this, chats, user);
-								chatsRecycle.setAdapter(chatAdapter);
-							}
-						}
-
-						@Override
-						public void onCancelled(@NonNull DatabaseError databaseError) {
-
-						}
-					});
+				final HashMap<String, String> myChatNames = new HashMap<>();
+				for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+					myChatNames.put(snapshot.getKey(), snapshot.getValue(String.class));
 				}
+
+				DatabaseReference myChatsRef = myRef.child("MyChats");
+				chats = new ArrayList<>();
+				myChatsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+					@Override
+					public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+						chats = new ArrayList<>();
+						final DatabaseReference chatsRef = FirebaseDatabase.getInstance().getReference("Chats");
+						final long myChatsCount = dataSnapshot.getChildrenCount();
+						for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+							final String chatId = snapshot.getValue(String.class);
+							chatsRef.child(chatId).addListenerForSingleValueEvent(new ValueEventListener() {
+								@Override
+								public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+									chats.add(new Chat(dataSnapshot));
+									chats.get(chats.size() - 1).setName(myChatNames.get(dataSnapshot.getKey()));
+									if (chats.size() == myChatsCount) {
+										ChatAdapter chatAdapter = new ChatAdapter(ChatsListActivity.this, chats, user);
+										chatsRecycle.setAdapter(chatAdapter);
+									}
+								}
+
+								@Override
+								public void onCancelled(@NonNull DatabaseError databaseError) {
+								}
+							});
+
+						}
+					}
+
+					@Override
+					public void onCancelled(@NonNull DatabaseError databaseError) {
+
+					}
+				});
 			}
 
 			@Override
 			public void onCancelled(@NonNull DatabaseError databaseError) {
-
 			}
 		});
 	}

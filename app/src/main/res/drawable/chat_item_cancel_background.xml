@@ -4,13 +4,13 @@
     <item >
         <shape>
             <gradient android:angle="225" android:startColor="@color/colorPrimary" android:endColor="@color/colorPrimaryDark" />
-            <corners android:radius="15.0dip"  android:bottomLeftRadius="0dp" android:topLeftRadius="0dp"/>
+            <corners android:radius="0.0dip"/>
         </shape>
     </item>
     <item >
         <shape>
-            <solid android:color="@color/colorChatItemDeleteBackground"/>
-            <corners android:radius="15.0dip"  android:bottomLeftRadius="0dp" android:topLeftRadius="0dp"/>
+            <solid android:color="@color/colorChatItemCancelBackground"/>
+            <corners android:radius="0.0dip"/>
         </shape>
     </item>
 </layer-list>

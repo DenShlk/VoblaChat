@@ -7,7 +7,6 @@ import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -119,7 +118,7 @@ public class MessageCheckService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		running = false;
 
-		Toast.makeText(this, "onStartCommand", Toast.LENGTH_SHORT).show();
+		//Toast.makeText(this, "onStartCommand", Toast.LENGTH_SHORT).show();
 
 		return Service.START_STICKY;
 	}
